@@ -57,7 +57,7 @@ export default function RoutinesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {routines.map((routine) => (
             <Link key={routine.id} href={`/routines/${routine.id}`}>
-              <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+              <Card className="cool-card h-full hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="py-5">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">

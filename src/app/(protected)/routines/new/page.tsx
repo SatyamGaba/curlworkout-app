@@ -171,9 +171,9 @@ export default function NewRoutinePage() {
     >
       <div className="max-w-3xl space-y-6">
         {/* Configuration Form */}
-        <Card>
+        <Card className="cool-card text-white">
           <CardHeader>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-white">
               Workout Configuration
             </h2>
           </CardHeader>

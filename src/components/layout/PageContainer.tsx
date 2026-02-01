@@ -17,7 +17,7 @@ export function PageContainer({
   action,
 }: PageContainerProps) {
   return (
-    <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8", className)}>
+    <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#020617]", className)}>
       {(title || action) && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>

@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import "./globals.css";
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter'
+})
 
 export const metadata: Metadata = {
   title: "CurlWorkout - AI-Powered Workout Tracking",

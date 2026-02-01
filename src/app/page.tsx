@@ -25,7 +25,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+          <div className="bg-orange-gradient w-8 h-8 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">C</span>
           </div>
           <span className="font-bold text-xl text-gray-900 dark:text-white">

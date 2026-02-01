@@ -47,7 +47,7 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           Welcome back, {userProfile?.displayName?.split(" ")[0] || "there"}!
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600 dark:text-gray-400 py-1">
           Ready for your next workout?
         </p>
       </div>
@@ -91,11 +91,11 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <Link href="/routines/new">
-          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+          <Card className="premium-card text-white">
             <CardContent className="py-6 flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-orange-gradient">
                 <svg
-                  className="w-6 h-6 text-primary-600"
+                  className="w-6 h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -121,11 +121,11 @@ export default function DashboardPage() {
         </Link>
 
         <Link href="/routines">
-          <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+          <Card className="premium-card-green h-full hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="py-6 flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-700 rounded-xl flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-green-600"
+                  className="w-6 h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -179,7 +179,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               {routines.map((routine) => (
                 <Link key={routine.id} href={`/routines/${routine.id}`}>
-                  <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <Card className="cool-card hover:shadow-md transition-shadow cursor-pointer">
                     <CardContent className="py-4">
                       <div className="flex items-center justify-between">
                         <div>
@@ -240,7 +240,7 @@ export default function DashboardPage() {
             <div className="space-y-3">
               {recentWorkouts.map((workout) => (
                 <Link key={workout.id} href={`/history/${workout.id}`}>
-                  <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <Card className="cool-card hover:shadow-md transition-shadow cursor-pointer">
                     <CardContent className="py-4">
                       <div className="flex items-center justify-between">
                         <div>
