@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     let model;
     if (provider === "google") {
-      model = google("gemini-3-flash");
+      model = google("gemini-2.5-flash");
     } else {
       model = openai("gpt-4o-mini");
     }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       model,
       prompt,
       temperature: 0.7,
-      maxTokens: 1500,
+      maxTokens: 5000,
     });
 
     // Parse the JSON response
