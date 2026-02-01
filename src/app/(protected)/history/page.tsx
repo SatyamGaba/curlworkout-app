@@ -73,7 +73,7 @@ export default function HistoryPage() {
               <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">
                 {date}
               </h2>
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {workouts.map((workout) => (
                   <WorkoutHistoryCard
                     key={workout.id}
