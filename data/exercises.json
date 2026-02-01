@@ -1,0 +1,459 @@
+{
+  "exercises": [
+    {
+      "id": "bench-press",
+      "name": "Bench Press",
+      "category": "Push",
+      "muscleGroups": ["Chest", "Triceps", "Shoulders"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "incline-bench-press",
+      "name": "Incline Bench Press",
+      "category": "Push",
+      "muscleGroups": ["Upper Chest", "Triceps", "Shoulders"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "decline-bench-press",
+      "name": "Decline Bench Press",
+      "category": "Push",
+      "muscleGroups": ["Lower Chest", "Triceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "dumbbell-bench-press",
+      "name": "Dumbbell Bench Press",
+      "category": "Push",
+      "muscleGroups": ["Chest", "Triceps", "Shoulders"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "dumbbell-incline-press",
+      "name": "Dumbbell Incline Press",
+      "category": "Push",
+      "muscleGroups": ["Upper Chest", "Triceps", "Shoulders"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "overhead-press",
+      "name": "Overhead Press",
+      "category": "Push",
+      "muscleGroups": ["Shoulders", "Triceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "dumbbell-shoulder-press",
+      "name": "Dumbbell Shoulder Press",
+      "category": "Push",
+      "muscleGroups": ["Shoulders", "Triceps"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "arnold-press",
+      "name": "Arnold Press",
+      "category": "Push",
+      "muscleGroups": ["Shoulders", "Triceps"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "lateral-raise",
+      "name": "Lateral Raise",
+      "category": "Push",
+      "muscleGroups": ["Lateral Deltoid"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "front-raise",
+      "name": "Front Raise",
+      "category": "Push",
+      "muscleGroups": ["Front Deltoid"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "cable-lateral-raise",
+      "name": "Cable Lateral Raise",
+      "category": "Push",
+      "muscleGroups": ["Lateral Deltoid"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "tricep-pushdown",
+      "name": "Tricep Pushdown",
+      "category": "Push",
+      "muscleGroups": ["Triceps"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "tricep-overhead-extension",
+      "name": "Tricep Overhead Extension",
+      "category": "Push",
+      "muscleGroups": ["Triceps"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "skull-crushers",
+      "name": "Skull Crushers",
+      "category": "Push",
+      "muscleGroups": ["Triceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "dips",
+      "name": "Dips",
+      "category": "Push",
+      "muscleGroups": ["Chest", "Triceps", "Shoulders"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "push-ups",
+      "name": "Push Ups",
+      "category": "Push",
+      "muscleGroups": ["Chest", "Triceps", "Shoulders"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "chest-fly-machine",
+      "name": "Chest Fly Machine",
+      "category": "Push",
+      "muscleGroups": ["Chest"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "cable-chest-fly",
+      "name": "Cable Chest Fly",
+      "category": "Push",
+      "muscleGroups": ["Chest"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "deadlift",
+      "name": "Deadlift",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Hamstrings", "Glutes"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "romanian-deadlift",
+      "name": "Romanian Deadlift",
+      "category": "Pull",
+      "muscleGroups": ["Hamstrings", "Glutes", "Lower Back"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "barbell-row",
+      "name": "Barbell Row",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "dumbbell-row",
+      "name": "Dumbbell Row",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "pull-ups",
+      "name": "Pull Ups",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "chin-ups",
+      "name": "Chin Ups",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "lat-pulldown",
+      "name": "Lat Pulldown",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "close-grip-lat-pulldown",
+      "name": "Close Grip Lat Pulldown",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "seated-cable-row",
+      "name": "Seated Cable Row",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "face-pulls",
+      "name": "Face Pulls",
+      "category": "Pull",
+      "muscleGroups": ["Rear Deltoid", "Upper Back"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "rear-delt-fly",
+      "name": "Rear Delt Fly",
+      "category": "Pull",
+      "muscleGroups": ["Rear Deltoid"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "reverse-pec-deck",
+      "name": "Reverse Pec Deck",
+      "category": "Pull",
+      "muscleGroups": ["Rear Deltoid", "Upper Back"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "barbell-curl",
+      "name": "Barbell Curl",
+      "category": "Pull",
+      "muscleGroups": ["Biceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "dumbbell-curl",
+      "name": "Dumbbell Curl",
+      "category": "Pull",
+      "muscleGroups": ["Biceps"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "hammer-curl",
+      "name": "Hammer Curl",
+      "category": "Pull",
+      "muscleGroups": ["Biceps", "Forearms"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "preacher-curl",
+      "name": "Preacher Curl",
+      "category": "Pull",
+      "muscleGroups": ["Biceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "cable-curl",
+      "name": "Cable Curl",
+      "category": "Pull",
+      "muscleGroups": ["Biceps"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "t-bar-row",
+      "name": "T-Bar Row",
+      "category": "Pull",
+      "muscleGroups": ["Back", "Biceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "barbell-shrug",
+      "name": "Barbell Shrug",
+      "category": "Pull",
+      "muscleGroups": ["Traps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "dumbbell-shrug",
+      "name": "Dumbbell Shrug",
+      "category": "Pull",
+      "muscleGroups": ["Traps"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "barbell-squat",
+      "name": "Barbell Squat",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes", "Hamstrings"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "front-squat",
+      "name": "Front Squat",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes", "Core"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "goblet-squat",
+      "name": "Goblet Squat",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "leg-press",
+      "name": "Leg Press",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes", "Hamstrings"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "hack-squat",
+      "name": "Hack Squat",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "lunges",
+      "name": "Lunges",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes", "Hamstrings"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "walking-lunges",
+      "name": "Walking Lunges",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes", "Hamstrings"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "bulgarian-split-squat",
+      "name": "Bulgarian Split Squat",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps", "Glutes"],
+      "equipment": "Dumbbell"
+    },
+    {
+      "id": "leg-extension",
+      "name": "Leg Extension",
+      "category": "Legs",
+      "muscleGroups": ["Quadriceps"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "leg-curl",
+      "name": "Leg Curl",
+      "category": "Legs",
+      "muscleGroups": ["Hamstrings"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "seated-leg-curl",
+      "name": "Seated Leg Curl",
+      "category": "Legs",
+      "muscleGroups": ["Hamstrings"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "hip-thrust",
+      "name": "Hip Thrust",
+      "category": "Legs",
+      "muscleGroups": ["Glutes", "Hamstrings"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "glute-bridge",
+      "name": "Glute Bridge",
+      "category": "Legs",
+      "muscleGroups": ["Glutes"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "calf-raise",
+      "name": "Standing Calf Raise",
+      "category": "Legs",
+      "muscleGroups": ["Calves"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "seated-calf-raise",
+      "name": "Seated Calf Raise",
+      "category": "Legs",
+      "muscleGroups": ["Calves"],
+      "equipment": "Machine"
+    },
+    {
+      "id": "good-morning",
+      "name": "Good Morning",
+      "category": "Legs",
+      "muscleGroups": ["Hamstrings", "Lower Back", "Glutes"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "sumo-deadlift",
+      "name": "Sumo Deadlift",
+      "category": "Legs",
+      "muscleGroups": ["Glutes", "Hamstrings", "Quadriceps"],
+      "equipment": "Barbell"
+    },
+    {
+      "id": "plank",
+      "name": "Plank",
+      "category": "Core",
+      "muscleGroups": ["Core", "Abs"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "crunches",
+      "name": "Crunches",
+      "category": "Core",
+      "muscleGroups": ["Abs"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "leg-raises",
+      "name": "Leg Raises",
+      "category": "Core",
+      "muscleGroups": ["Lower Abs"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "hanging-leg-raises",
+      "name": "Hanging Leg Raises",
+      "category": "Core",
+      "muscleGroups": ["Lower Abs", "Hip Flexors"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "russian-twist",
+      "name": "Russian Twist",
+      "category": "Core",
+      "muscleGroups": ["Obliques", "Abs"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "cable-crunch",
+      "name": "Cable Crunch",
+      "category": "Core",
+      "muscleGroups": ["Abs"],
+      "equipment": "Cable"
+    },
+    {
+      "id": "ab-wheel-rollout",
+      "name": "Ab Wheel Rollout",
+      "category": "Core",
+      "muscleGroups": ["Abs", "Core"],
+      "equipment": "Other"
+    },
+    {
+      "id": "mountain-climbers",
+      "name": "Mountain Climbers",
+      "category": "Core",
+      "muscleGroups": ["Core", "Hip Flexors"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "dead-bug",
+      "name": "Dead Bug",
+      "category": "Core",
+      "muscleGroups": ["Core", "Abs"],
+      "equipment": "Bodyweight"
+    },
+    {
+      "id": "side-plank",
+      "name": "Side Plank",
+      "category": "Core",
+      "muscleGroups": ["Obliques", "Core"],
+      "equipment": "Bodyweight"
+    }
+  ]
+}
