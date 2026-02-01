@@ -176,7 +176,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : routines.length > 0 ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {routines.map((routine) => (
                 <Link key={routine.id} href={`/routines/${routine.id}`}>
                   <Card className="cool-card hover:shadow-md transition-shadow cursor-pointer">
@@ -237,7 +237,7 @@ export default function DashboardPage() {
               ))}
             </div>
           ) : recentWorkouts.length > 0 ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {recentWorkouts.map((workout) => (
                 <Link key={workout.id} href={`/history/${workout.id}`}>
                   <Card className="cool-card hover:shadow-md transition-shadow cursor-pointer">
