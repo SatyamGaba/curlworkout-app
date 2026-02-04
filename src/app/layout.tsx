@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { ReduxProvider } from "@/components/providers/ReduxProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { WorkoutBootstrap } from "@/components/providers/WorkoutBootstrap";
+import { ActiveWorkoutBanner } from "@/components/workout/ActiveWorkoutBanner";
 import "./globals.css";
 import { Inter } from 'next/font/google'
 
@@ -22,7 +25,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen bg-gray-50 dark:bg-gray-900">
-        <AuthProvider>{children}</AuthProvider>
+        <ReduxProvider>
+          <AuthProvider>
+            <WorkoutBootstrap />
+            {children}
+            <ActiveWorkoutBanner />
+          </AuthProvider>
+        </ReduxProvider>
       </body>
     </html>
   );
