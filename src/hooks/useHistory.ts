@@ -1,38 +1,49 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback, useMemo } from "react";
 import { useAuthContext } from "@/components/providers/AuthProvider";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  getUserWorkoutHistory,
-  getWorkoutHistoryById,
-} from "@/lib/firebase/firestore";
-import type { WorkoutHistory, WorkoutType } from "@/types";
+  loadHistory as loadHistoryThunk,
+  loadWorkoutById,
+  loadRecentWorkouts as loadRecentWorkoutsThunk,
+  historyActions,
+  selectHistory,
+  selectHistoryLoading,
+  selectCurrentWorkout,
+  selectCurrentWorkoutLoading,
+  selectRecentWorkouts,
+  selectRecentWorkoutsLoading,
+  selectHistoryError,
+} from "@/store/historySlice";
+import type { WorkoutType } from "@/types";
 
 export function useWorkoutHistory(filters?: { workoutType?: WorkoutType }) {
   const { user } = useAuthContext();
-  const [history, setHistory] = useState<WorkoutHistory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+
+  const history = useAppSelector(selectHistory);
+  const loading = useAppSelector(selectHistoryLoading);
+  const error = useAppSelector(selectHistoryError);
+
+  // Memoize filters to prevent unnecessary re-renders
+  const memoizedFilters = useMemo(() => filters, [filters?.workoutType]);
 
   const loadHistory = useCallback(async () => {
     if (!user) return;
+    await dispatch(
+      loadHistoryThunk({ userId: user.uid, filters: memoizedFilters })
+    );
+  }, [user, memoizedFilters, dispatch]);
 
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getUserWorkoutHistory(user.uid, filters);
-      setHistory(data);
-    } catch (err) {
-      setError("Failed to load workout history");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, filters]);
-
+  // Load history when user or filters change
   useEffect(() => {
-    loadHistory();
-  }, [loadHistory]);
+    if (user) {
+      loadHistory();
+    } else {
+      dispatch(historyActions.clearHistory());
+    }
+  }, [user, loadHistory, dispatch]);
 
   return {
     history,
@@ -44,34 +55,61 @@ export function useWorkoutHistory(filters?: { workoutType?: WorkoutType }) {
 
 export function useWorkoutDetail(workoutId: string) {
   const { user } = useAuthContext();
-  const [workout, setWorkout] = useState<WorkoutHistory | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+
+  const workout = useAppSelector(selectCurrentWorkout);
+  const loading = useAppSelector(selectCurrentWorkoutLoading);
+  const error = useAppSelector(selectHistoryError);
 
   const loadWorkout = useCallback(async () => {
     if (!user || !workoutId) return;
+    await dispatch(loadWorkoutById({ userId: user.uid, workoutId }));
+  }, [user, workoutId, dispatch]);
 
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getWorkoutHistoryById(user.uid, workoutId);
-      setWorkout(data);
-    } catch (err) {
-      setError("Failed to load workout");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, workoutId]);
-
+  // Load workout when user or workoutId changes
   useEffect(() => {
-    loadWorkout();
-  }, [loadWorkout]);
+    if (user && workoutId) {
+      loadWorkout();
+    }
+
+    // Clear current workout when unmounting
+    return () => {
+      dispatch(historyActions.clearCurrentWorkout());
+    };
+  }, [user, workoutId, loadWorkout, dispatch]);
 
   return {
     workout,
     loading,
     error,
     refresh: loadWorkout,
+  };
+}
+
+export function useRecentWorkouts(limit: number = 5) {
+  const { user } = useAuthContext();
+  const dispatch = useAppDispatch();
+
+  const recentWorkouts = useAppSelector(selectRecentWorkouts);
+  const loading = useAppSelector(selectRecentWorkoutsLoading);
+  const error = useAppSelector(selectHistoryError);
+
+  const loadRecentWorkouts = useCallback(async () => {
+    if (!user) return;
+    await dispatch(loadRecentWorkoutsThunk({ userId: user.uid, limit }));
+  }, [user, limit, dispatch]);
+
+  // Load recent workouts when user changes
+  useEffect(() => {
+    if (user) {
+      loadRecentWorkouts();
+    }
+  }, [user, loadRecentWorkouts]);
+
+  return {
+    recentWorkouts,
+    loading,
+    error,
+    refresh: loadRecentWorkouts,
   };
 }

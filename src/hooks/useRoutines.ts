@@ -1,72 +1,93 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { useAuthContext } from "@/components/providers/AuthProvider";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  getUserRoutines,
-  getRoutineById,
-  createRoutine,
-  updateRoutine,
-  deleteRoutine,
-} from "@/lib/firebase/firestore";
-import type { Routine, RoutineExercise, WorkoutType, Intensity } from "@/types";
+  loadRoutines as loadRoutinesThunk,
+  loadRoutineById,
+  addRoutine as addRoutineThunk,
+  editRoutine as editRoutineThunk,
+  removeRoutine as removeRoutineThunk,
+  routinesActions,
+  selectRoutines,
+  selectRoutinesLoading,
+  selectCurrentRoutine,
+  selectCurrentRoutineLoading,
+  selectRoutinesError,
+} from "@/store/routinesSlice";
+import type { RoutineExercise, WorkoutType, Intensity } from "@/types";
 
 export function useRoutines() {
   const { user } = useAuthContext();
-  const [routines, setRoutines] = useState<Routine[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  
+  const routines = useAppSelector(selectRoutines);
+  const loading = useAppSelector(selectRoutinesLoading);
+  const error = useAppSelector(selectRoutinesError);
 
   const loadRoutines = useCallback(async () => {
     if (!user) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getUserRoutines(user.uid);
-      setRoutines(data);
-    } catch (err) {
-      setError("Failed to load routines");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
+    await dispatch(loadRoutinesThunk(user.uid));
+  }, [user, dispatch]);
 
+  // Load routines when user changes
   useEffect(() => {
-    loadRoutines();
-  }, [loadRoutines]);
+    if (user) {
+      loadRoutines();
+    } else {
+      dispatch(routinesActions.clearRoutines());
+    }
+  }, [user, loadRoutines, dispatch]);
 
-  const addRoutine = async (data: {
-    name: string;
-    workoutType: WorkoutType;
-    intensity: Intensity;
-    estimatedDuration: number;
-    exercises: RoutineExercise[];
-  }) => {
-    if (!user) throw new Error("User not authenticated");
-    
-    const id = await createRoutine(user.uid, data);
-    await loadRoutines();
-    return id;
-  };
+  const addRoutine = useCallback(
+    async (data: {
+      name: string;
+      workoutType: WorkoutType;
+      intensity: Intensity;
+      estimatedDuration: number;
+      exercises: RoutineExercise[];
+    }) => {
+      if (!user) throw new Error("User not authenticated");
 
-  const editRoutine = async (
-    routineId: string,
-    data: Partial<{ name: string; exercises: RoutineExercise[] }>
-  ) => {
-    if (!user) throw new Error("User not authenticated");
-    
-    await updateRoutine(user.uid, routineId, data);
-    await loadRoutines();
-  };
+      const result = await dispatch(
+        addRoutineThunk({ userId: user.uid, data })
+      ).unwrap();
+      
+      // Reload routines to get the new one with full data
+      await loadRoutines();
+      return result;
+    },
+    [user, dispatch, loadRoutines]
+  );
 
-  const removeRoutine = async (routineId: string) => {
-    if (!user) throw new Error("User not authenticated");
-    
-    await deleteRoutine(user.uid, routineId);
-    await loadRoutines();
-  };
+  const editRoutine = useCallback(
+    async (
+      routineId: string,
+      data: Partial<{ name: string; exercises: RoutineExercise[] }>
+    ) => {
+      if (!user) throw new Error("User not authenticated");
+
+      await dispatch(
+        editRoutineThunk({ userId: user.uid, routineId, data })
+      ).unwrap();
+      
+      // Reload routines to get updated data
+      await loadRoutines();
+    },
+    [user, dispatch, loadRoutines]
+  );
+
+  const removeRoutine = useCallback(
+    async (routineId: string) => {
+      if (!user) throw new Error("User not authenticated");
+
+      await dispatch(
+        removeRoutineThunk({ userId: user.uid, routineId })
+      ).unwrap();
+    },
+    [user, dispatch]
+  );
 
   return {
     routines,
@@ -81,29 +102,28 @@ export function useRoutines() {
 
 export function useRoutine(routineId: string) {
   const { user } = useAuthContext();
-  const [routine, setRoutine] = useState<Routine | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  
+  const routine = useAppSelector(selectCurrentRoutine);
+  const loading = useAppSelector(selectCurrentRoutineLoading);
+  const error = useAppSelector(selectRoutinesError);
 
   const loadRoutine = useCallback(async () => {
     if (!user || !routineId) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getRoutineById(user.uid, routineId);
-      setRoutine(data);
-    } catch (err) {
-      setError("Failed to load routine");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, routineId]);
+    await dispatch(loadRoutineById({ userId: user.uid, routineId }));
+  }, [user, routineId, dispatch]);
 
+  // Load routine when user or routineId changes
   useEffect(() => {
-    loadRoutine();
-  }, [loadRoutine]);
+    if (user && routineId) {
+      loadRoutine();
+    }
+    
+    // Clear current routine when unmounting
+    return () => {
+      dispatch(routinesActions.clearCurrentRoutine());
+    };
+  }, [user, routineId, loadRoutine, dispatch]);
 
   return {
     routine,

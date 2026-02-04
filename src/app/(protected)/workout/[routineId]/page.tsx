@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useRoutine } from "@/hooks/useRoutines";
@@ -19,10 +19,12 @@ export default function WorkoutPage() {
   const routineId = params.routineId as string;
   
   const { routine, loading: routineLoading, error: routineError } = useRoutine(routineId);
-  const { userProfile } = useAuthContext();
+  const { user, userProfile } = useAuthContext();
   
   const {
     isActive,
+    restoreAttempted,
+    routineId: activeRoutineId,
     elapsedSeconds,
     exercises,
     saving,
@@ -30,18 +32,43 @@ export default function WorkoutPage() {
     toggleSetComplete,
     updateSet,
     finishWorkout,
+    cancelWorkout,
     getProgress,
-  } = useWorkout(routine);
+  } = useWorkout();
 
   const [finishModalOpen, setFinishModalOpen] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
 
-  // Auto-start workout when routine loads
+  // Ref to track if we've already initialized for this routineId
+  const hasInitializedRef = useRef(false);
+
+  // Reset initialization flag when routineId changes (navigating to different workout)
   useEffect(() => {
-    if (routine && !isActive && exercises.length > 0) {
-      startWorkout();
+    hasInitializedRef.current = false;
+  }, [routineId]);
+
+  // Auto-start workout when routine loads (or resume if already active for this routine)
+  useEffect(() => {
+    // Wait for restore attempt to complete before deciding to auto-start
+    // This prevents the race condition where we start a new workout before restore completes
+    if (!restoreAttempted) return;
+
+    // Skip if already initialized for this routine to prevent restart on re-renders
+    if (hasInitializedRef.current) return;
+
+    // Need routine and user to proceed
+    if (!routine || !user) return;
+
+    // If there's an active workout for THIS routine, don't restart - just resume
+    if (isActive && activeRoutineId === routineId) {
+      hasInitializedRef.current = true;
+      return;
     }
-  }, [routine, isActive, exercises.length, startWorkout]);
+
+    // Start a new workout (either no workout active, or it's for a different routine)
+    startWorkout(routine, user.uid);
+    hasInitializedRef.current = true;
+  }, [restoreAttempted, routine, user, isActive, activeRoutineId, routineId, startWorkout]);
 
   const handleFinish = async () => {
     const workoutId = await finishWorkout();
@@ -51,6 +78,7 @@ export default function WorkoutPage() {
   };
 
   const handleCancel = () => {
+    cancelWorkout();
     router.push("/routines");
   };
 
