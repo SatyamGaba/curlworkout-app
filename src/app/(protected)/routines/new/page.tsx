@@ -168,16 +168,16 @@ export default function NewRoutinePage() {
     <PageContainer
       title="Create New Routine"
       description="Generate a personalized workout with AI"
+      gradient
     >
-      <div className="max-w-3xl space-y-6">
-        {/* Configuration Form */}
-        <Card className="cool-card text-white">
-          <CardHeader>
-            <h2 className="text-lg font-semibold text-white">
+      <div className="space-y-5">
+        {/* Configuration Form - Cal AI neumorphic card */}
+        <Card variant="neumorphic">
+          <CardContent className="space-y-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Workout Configuration
             </h2>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            
             <Select
               id="workoutType"
               label="Workout Type"
@@ -233,7 +233,7 @@ export default function NewRoutinePage() {
             </div>
 
             {!userProfile?.weight && (
-              <p className="text-sm text-yellow-600 dark:text-yellow-400">
+              <p className="text-sm text-cal-peach-600 dark:text-cal-peach-400">
                 Tip: Add your weight and height in Settings for better workout recommendations.
               </p>
             )}
@@ -242,7 +242,8 @@ export default function NewRoutinePage() {
               onClick={handleGenerate}
               isLoading={generating}
               disabled={generating}
-              className="w-full"
+              className="w-full mt-2"
+              size="lg"
             >
               {generating ? "Generating..." : "Generate Routine with AI"}
             </Button>
@@ -251,7 +252,7 @@ export default function NewRoutinePage() {
 
         {/* Error Message */}
         {error && (
-          <Card className="border-l-4 border-l-red-500">
+          <Card variant="neumorphic-sm" className="border-l-4 border-l-red-500">
             <CardContent className="py-4">
               <p className="text-red-600 dark:text-red-400">{error}</p>
             </CardContent>
@@ -260,18 +261,17 @@ export default function NewRoutinePage() {
 
         {/* Generated Routine Preview */}
         {generatedRoutine && (
-          <Card>
-            <CardHeader>
+          <Card variant="neumorphic">
+            <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold text-text-primary">
                   Generated Routine
                 </h2>
                 <Badge className={getWorkoutTypeColor(workoutType)}>
                   {workoutType}
                 </Badge>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              
               <Input
                 id="routineName"
                 label="Routine Name"
@@ -281,24 +281,24 @@ export default function NewRoutinePage() {
               />
 
               <div className="space-y-3">
-                <h3 className="font-medium text-gray-900 dark:text-white">
+                <h3 className="font-medium text-text-primary">
                   Exercises ({generatedRoutine.exercises.length})
                 </h3>
 
                 {generatedRoutine.exercises.map((exercise, index) => (
                   <div
                     key={`${exercise.exerciseId}-${index}`}
-                    className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    className="p-4 bg-surface-secondary rounded-2xl border border-border-light"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="font-medium text-text-primary">
                         {exercise.exerciseName}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs text-text-tertiary mb-1">
                           Sets
                         </label>
                         <input
@@ -307,13 +307,13 @@ export default function NewRoutinePage() {
                           onChange={(e) =>
                             updateExercise(index, "sets", parseInt(e.target.value) || 1)
                           }
-                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"
+                          className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-text-primary/20"
                           min={1}
                           max={10}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs text-text-tertiary mb-1">
                           Reps
                         </label>
                         <input
@@ -322,13 +322,13 @@ export default function NewRoutinePage() {
                           onChange={(e) =>
                             updateExercise(index, "reps", parseInt(e.target.value) || 1)
                           }
-                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"
+                          className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-text-primary/20"
                           min={1}
                           max={50}
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs text-text-tertiary mb-1">
                           Weight ({userProfile?.unitPreference || "kg"})
                         </label>
                         <input
@@ -337,7 +337,7 @@ export default function NewRoutinePage() {
                           onChange={(e) =>
                             updateExercise(index, "weight", parseFloat(e.target.value) || 0)
                           }
-                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600"
+                          className="w-full px-3 py-2 text-sm bg-surface border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-text-primary/20"
                           min={0}
                           step={0.5}
                         />
@@ -353,6 +353,7 @@ export default function NewRoutinePage() {
                   isLoading={saving}
                   disabled={saving}
                   className="flex-1"
+                  size="lg"
                 >
                   Save Routine
                 </Button>
@@ -360,6 +361,7 @@ export default function NewRoutinePage() {
                   variant="outline"
                   onClick={handleGenerate}
                   disabled={generating}
+                  size="lg"
                 >
                   Regenerate
                 </Button>

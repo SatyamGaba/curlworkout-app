@@ -4,3 +4,4 @@ export { Card, CardHeader, CardContent, CardFooter } from "./Card";
 export { Select } from "./Select";
 export { Modal } from "./Modal";
 export { Badge } from "./Badge";
+export { Tabs } from "./Tabs";

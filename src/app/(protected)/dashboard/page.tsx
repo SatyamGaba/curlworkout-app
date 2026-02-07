@@ -1,33 +1,78 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuthContext } from "@/components/providers/AuthProvider";
-import { PageContainer } from "@/components/layout/PageContainer";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { getUserRoutines, getRecentWorkouts } from "@/lib/firebase/firestore";
-import { formatRelativeDate, formatDuration, getWorkoutTypeColor } from "@/lib/utils/helpers";
-import type { Routine, WorkoutHistory } from "@/types";
+import { getRecentWorkouts, getWeeklyStats, getDailyStats, type DailyStats } from "@/lib/firebase/firestore";
+import {
+  CalendarWeekView,
+  StreakBadge,
+  StatsCard,
+  StatsPills,
+  StatIcons,
+  RecentWorkouts,
+} from "@/components/dashboard";
+import type { WorkoutHistory } from "@/types";
+
+interface WeeklyStats {
+  totalVolume: number;
+  totalSets: number;
+  totalReps: number;
+  workoutCount: number;
+  workoutDates: Date[];
+}
+
+// Helper to format date for display
+function formatDateLabel(date: Date): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const compareDate = new Date(date);
+  compareDate.setHours(0, 0, 0, 0);
+  
+  if (compareDate.getTime() === today.getTime()) {
+    return "today";
+  }
+  
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (compareDate.getTime() === yesterday.getTime()) {
+    return "yesterday";
+  }
+  
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 export default function DashboardPage() {
   const { user, userProfile } = useAuthContext();
-  const [routines, setRoutines] = useState<Routine[]>([]);
   const [recentWorkouts, setRecentWorkouts] = useState<WorkoutHistory[]>([]);
+  const [weeklyStats, setWeeklyStats] = useState<WeeklyStats>({
+    totalVolume: 0,
+    totalSets: 0,
+    totalReps: 0,
+    workoutCount: 0,
+    workoutDates: [],
+  });
+  const [dailyStats, setDailyStats] = useState<DailyStats | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingDaily, setLoadingDaily] = useState(false);
+  
+  // Stats view mode: 0 = day/selected, 1 = week
+  const [statsViewIndex, setStatsViewIndex] = useState(1); // Start with week view
+  const statsContainerRef = useRef<HTMLDivElement>(null);
 
+  // Load initial weekly data
   useEffect(() => {
     async function loadData() {
       if (!user) return;
-      
+
       try {
-        const [routinesData, workoutsData] = await Promise.all([
-          getUserRoutines(user.uid),
-          getRecentWorkouts(user.uid, 3),
+        const [workoutsData, statsData] = await Promise.all([
+          getRecentWorkouts(user.uid, 5),
+          getWeeklyStats(user.uid),
         ]);
-        setRoutines(routinesData.slice(0, 4));
         setRecentWorkouts(workoutsData);
+        setWeeklyStats(statsData);
       } catch (error) {
         console.error("Error loading dashboard data:", error);
       } finally {
@@ -38,240 +83,229 @@ export default function DashboardPage() {
     loadData();
   }, [user]);
 
-  const needsProfileSetup = !userProfile?.weight || !userProfile?.height;
+  // Load daily stats when a date is selected
+  useEffect(() => {
+    async function loadDailyStats() {
+      if (!user || !selectedDate) {
+        setDailyStats(null);
+        return;
+      }
+
+      setLoadingDaily(true);
+      try {
+        const stats = await getDailyStats(user.uid, selectedDate);
+        setDailyStats(stats);
+        // Switch to day view when a date is selected
+        setStatsViewIndex(0);
+      } catch (error) {
+        console.error("Error loading daily stats:", error);
+      } finally {
+        setLoadingDaily(false);
+      }
+    }
+
+    loadDailyStats();
+  }, [user, selectedDate]);
+
+  // Handle date selection from calendar
+  const handleSelectDate = useCallback((date: Date | null) => {
+    setSelectedDate(date);
+    if (date === null) {
+      // When deselecting, go back to week view
+      setStatsViewIndex(1);
+    }
+  }, []);
+
+  // Handle stats swipe/scroll
+  const handleStatsScroll = useCallback(() => {
+    if (!statsContainerRef.current) return;
+    const { scrollLeft, clientWidth } = statsContainerRef.current;
+    const newIndex = Math.round(scrollLeft / clientWidth);
+    setStatsViewIndex(newIndex);
+  }, []);
+
+  const weeklyGoal = userProfile?.weeklyGoal || 4;
+  const progressPercent = Math.min(
+    (weeklyStats.workoutCount / weeklyGoal) * 100,
+    100
+  );
+
+  // Current display stats (either daily or weekly based on view)
+  const displayStats = useMemo(() => {
+    if (statsViewIndex === 0 && dailyStats) {
+      return {
+        volume: dailyStats.totalVolume,
+        sets: dailyStats.totalSets,
+        reps: dailyStats.totalReps,
+        workouts: dailyStats.workoutCount,
+        label: `Volume on ${formatDateLabel(dailyStats.date)}`,
+        isDaily: true,
+      };
+    }
+    return {
+      volume: weeklyStats.totalVolume,
+      sets: weeklyStats.totalSets,
+      reps: weeklyStats.totalReps,
+      workouts: weeklyStats.workoutCount,
+      label: "Volume this week",
+      isDaily: false,
+    };
+  }, [statsViewIndex, dailyStats, weeklyStats]);
+
+  const statsPillsData = useMemo(() => [
+    {
+      value: displayStats.sets,
+      label: "Sets done",
+      icon: StatIcons.sets,
+    },
+    {
+      value: displayStats.reps,
+      label: "Reps done",
+      icon: StatIcons.reps,
+    },
+    {
+      value: displayStats.isDaily 
+        ? displayStats.workouts 
+        : `${weeklyStats.workoutCount}/${weeklyGoal}`,
+      label: "Workouts",
+      icon: StatIcons.workouts,
+    },
+  ], [displayStats, weeklyStats.workoutCount, weeklyGoal]);
 
   return (
-    <PageContainer>
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Welcome back, {userProfile?.displayName?.split(" ")[0] || "there"}!
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 py-1">
-          Ready for your next workout?
-        </p>
-      </div>
-
-      {/* Profile Setup Alert */}
-      {needsProfileSetup && (
-        <Card className="mb-6 border-l-4 border-l-yellow-500">
-          <CardContent className="py-4">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                <svg
-                  className="w-6 h-6 text-yellow-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-900 dark:text-white">
-                  Complete your profile
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Add your weight and height to get personalized AI workout routines.
-                </p>
-              </div>
-              <Link href="/settings">
-                <Button size="sm">Update Profile</Button>
-              </Link>
+    <div className="min-h-screen bg-gradient-page pb-28">
+      {/* Header - Cal AI style */}
+      <div className="px-6 pt-12 pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-text-primary rounded-xl flex items-center justify-center shadow-cal-sm">
+              <span className="text-background font-bold text-lg">C</span>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Link href="/routines/new">
-          <Card className="premium-card text-white">
-            <CardContent className="py-6 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-orange-gradient">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Create New Routine
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Generate a workout with AI
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-
-        <Link href="/routines">
-          <Card className="premium-card-green h-full hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="py-6 flex items-center gap-4">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-700 rounded-xl flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Start Workout
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Choose from your routines
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent Routines */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Your Routines
-            </h2>
-            <Link
-              href="/routines"
-              className="text-sm text-primary-600 hover:text-primary-700"
-            >
-              View all
-            </Link>
+            <span className="font-semibold text-xl text-text-primary tracking-tight">
+              CurlAI
+            </span>
           </div>
-
-          {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
-                />
-              ))}
-            </div>
-          ) : routines.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {routines.map((routine) => (
-                <Link key={routine.id} href={`/routines/${routine.id}`}>
-                  <Card className="cool-card hover:shadow-md transition-shadow cursor-pointer">
-                    <CardContent className="py-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">
-                            {routine.name}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {routine.exercises.length} exercises
-                          </p>
-                        </div>
-                        <Badge className={getWorkoutTypeColor(routine.workoutType)}>
-                          {routine.workoutType}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  No routines yet. Create your first AI-powered workout!
-                </p>
-                <Link href="/routines/new">
-                  <Button>Create Routine</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Recent Workouts */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Recent Workouts
-            </h2>
-            <Link
-              href="/history"
-              className="text-sm text-primary-600 hover:text-primary-700"
-            >
-              View all
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
-                />
-              ))}
-            </div>
-          ) : recentWorkouts.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {recentWorkouts.map((workout) => (
-                <Link key={workout.id} href={`/history/${workout.id}`}>
-                  <Card className="cool-card hover:shadow-md transition-shadow cursor-pointer">
-                    <CardContent className="py-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">
-                            {workout.routineName}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {formatRelativeDate(workout.createdAt)} •{" "}
-                            {formatDuration(workout.duration)}
-                          </p>
-                        </div>
-                        <Badge className={getWorkoutTypeColor(workout.workoutType)}>
-                          {workout.workoutType}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Card>
-              <CardContent className="py-8 text-center">
-                <p className="text-gray-600 dark:text-gray-400">
-                  No workouts yet. Start your first session!
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          <StreakBadge streak={userProfile?.currentStreak || 0} />
         </div>
       </div>
-    </PageContainer>
+
+      {/* Calendar Week View - Now with selection */}
+      <div className="px-4">
+        <CalendarWeekView 
+          workoutDates={weeklyStats.workoutDates}
+          selectedDate={selectedDate}
+          onSelectDate={handleSelectDate}
+        />
+      </div>
+
+      {/* Swipeable Stats Container */}
+      <div className="mt-4 overflow-hidden">
+        <div 
+          ref={statsContainerRef}
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          onScroll={handleStatsScroll}
+          style={{ scrollBehavior: "smooth" }}
+        >
+          {/* Day Stats View (Page 1) */}
+          <div className="w-full flex-shrink-0 snap-center px-5">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedDate?.toDateString() || "no-selection"}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                {loadingDaily ? (
+                  <div className="neumorphic-card p-6">
+                    <div className="animate-pulse">
+                      <div className="h-10 bg-surface-secondary rounded-xl w-24 mb-2" />
+                      <div className="h-4 bg-surface-secondary rounded w-32" />
+                    </div>
+                  </div>
+                ) : dailyStats ? (
+                  <>
+                    <StatsCard
+                      value={dailyStats.totalVolume}
+                      label={`Volume on ${formatDateLabel(dailyStats.date)}`}
+                      unit={userProfile?.unitPreference || "kg"}
+                      progress={dailyStats.workoutCount > 0 ? 100 : 0}
+                    />
+                    <div className="mt-4">
+                      <StatsPills stats={[
+                        { value: dailyStats.totalSets, label: "Sets done", icon: StatIcons.sets },
+                        { value: dailyStats.totalReps, label: "Reps done", icon: StatIcons.reps },
+                        { value: dailyStats.workoutCount, label: "Workouts", icon: StatIcons.workouts },
+                      ]} />
+                    </div>
+                  </>
+                ) : (
+                  <div className="neumorphic-card p-6 text-center">
+                    <p className="text-text-secondary text-sm">
+                      Select a day to view stats
+                    </p>
+                    <p className="text-text-tertiary text-xs mt-1">
+                      Swipe right for weekly stats
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Week Stats View (Page 2) */}
+          <div className="w-full flex-shrink-0 snap-center px-5">
+            <StatsCard
+              value={weeklyStats.totalVolume}
+              label="Volume this week"
+              unit={userProfile?.unitPreference || "kg"}
+              progress={progressPercent}
+            />
+            <div className="mt-4">
+              <StatsPills stats={[
+                { value: weeklyStats.totalSets, label: "Sets done", icon: StatIcons.sets },
+                { value: weeklyStats.totalReps, label: "Reps done", icon: StatIcons.reps },
+                { value: `${weeklyStats.workoutCount}/${weeklyGoal}`, label: "Workouts", icon: StatIcons.workouts },
+              ]} />
+            </div>
+          </div>
+        </div>
+
+        {/* Pagination dots */}
+        <div className="flex items-center justify-center gap-2 mt-5">
+          <button
+            onClick={() => {
+              statsContainerRef.current?.scrollTo({ left: 0, behavior: "smooth" });
+            }}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              statsViewIndex === 0 ? "bg-text-primary" : "bg-border"
+            }`}
+            aria-label="Day stats"
+          />
+          <button
+            onClick={() => {
+              if (statsContainerRef.current) {
+                statsContainerRef.current.scrollTo({ 
+                  left: statsContainerRef.current.clientWidth, 
+                  behavior: "smooth" 
+                });
+              }
+            }}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              statsViewIndex === 1 ? "bg-text-primary" : "bg-border"
+            }`}
+            aria-label="Week stats"
+          />
+        </div>
+      </div>
+
+      {/* Recent Workouts */}
+      <div className="px-5 mt-6">
+        <h2 className="text-lg font-semibold text-text-primary mb-4">
+          Recently logged
+        </h2>
+        <RecentWorkouts workouts={recentWorkouts} loading={loading} />
+      </div>
+    </div>
   );
 }
