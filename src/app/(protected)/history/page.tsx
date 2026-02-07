@@ -40,6 +40,7 @@ export default function HistoryPage() {
     <PageContainer
       title="Workout History"
       description="Review your past workouts"
+      gradient
       action={
         <Select
           value={filterType}

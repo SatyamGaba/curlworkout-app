@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/Button";
-
 interface GoogleSignInButtonProps {
   onClick: () => void;
   isLoading?: boolean;
@@ -12,14 +10,14 @@ export function GoogleSignInButton({
   isLoading,
 }: GoogleSignInButtonProps) {
   return (
-    <Button
-      variant="outline"
-      size="lg"
+    <button
       onClick={onClick}
-      isLoading={isLoading}
-      className="w-full flex items-center justify-center gap-3"
+      disabled={isLoading}
+      className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white text-black border-2 border-gray-200 rounded-full font-medium text-base transition-all hover:bg-gray-50 hover:border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {!isLoading && (
+      {isLoading ? (
+        <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
+      ) : (
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
             fill="#4285F4"
@@ -39,7 +37,7 @@ export function GoogleSignInButton({
           />
         </svg>
       )}
-      Continue with Google
-    </Button>
+      Sign in with Google
+    </button>
   );
 }

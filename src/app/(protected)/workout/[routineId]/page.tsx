@@ -86,17 +86,15 @@ export default function WorkoutPage() {
 
   if (routineLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="bg-primary-600 text-white px-4 py-4">
-          <div className="max-w-3xl mx-auto">
-            <div className="h-6 w-48 bg-primary-500 rounded animate-pulse" />
-          </div>
+      <div className="min-h-screen bg-gradient-page">
+        <div className="neumorphic-card mx-5 mt-12 p-6">
+          <div className="h-6 w-48 bg-surface-secondary rounded-xl animate-pulse" />
         </div>
-        <div className="max-w-3xl mx-auto p-4 space-y-4">
+        <div className="max-w-3xl mx-auto px-5 py-4 space-y-4">
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-24 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
+              className="h-24 bg-surface rounded-3xl animate-pulse shadow-cal"
             />
           ))}
         </div>
@@ -106,8 +104,8 @@ export default function WorkoutPage() {
 
   if (routineError || !routine) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <Card>
+      <div className="min-h-screen bg-gradient-page flex items-center justify-center p-5">
+        <Card variant="neumorphic">
           <CardContent className="py-12 text-center">
             <p className="text-red-600 dark:text-red-400 mb-4">
               {routineError || "Routine not found"}
@@ -122,15 +120,15 @@ export default function WorkoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
+    <div className="min-h-screen bg-gradient-page pb-36">
       {/* Timer Header */}
       <WorkoutTimer elapsedSeconds={elapsedSeconds} routineName={routine.name} />
 
       {/* Cancel Button */}
-      <div className="max-w-3xl mx-auto px-4 py-4">
+      <div className="max-w-3xl mx-auto px-5 py-4">
         <button
           onClick={() => setCancelModalOpen(true)}
-          className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 flex items-center gap-1"
+          className="text-sm text-text-secondary hover:text-text-primary flex items-center gap-1.5 transition-colors"
         >
           <svg
             className="w-4 h-4"
@@ -150,7 +148,7 @@ export default function WorkoutPage() {
       </div>
 
       {/* Exercise Cards */}
-      <div className="max-w-3xl mx-auto px-4 space-y-4">
+      <div className="max-w-3xl mx-auto px-5 space-y-4">
         {exercises.map((exercise, index) => (
           <ExerciseCard
             key={`${exercise.exerciseId}-${index}`}
@@ -177,13 +175,13 @@ export default function WorkoutPage() {
         title="Finish Workout?"
       >
         <div className="space-y-4">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-text-secondary">
             You've completed {progress.completedSets} of {progress.totalSets} sets
             ({Math.round(progress.percentage)}%).
           </p>
           
           {progress.percentage < 100 && (
-            <p className="text-sm text-yellow-600 dark:text-yellow-400">
+            <p className="text-sm text-cal-peach-600 dark:text-cal-peach-400">
               You haven't completed all sets. Are you sure you want to finish?
             </p>
           )}
@@ -206,7 +204,7 @@ export default function WorkoutPage() {
         title="Cancel Workout?"
       >
         <div className="space-y-4">
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-text-secondary">
             Are you sure you want to cancel this workout? Your progress will not
             be saved.
           </p>

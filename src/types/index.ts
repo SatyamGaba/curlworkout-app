@@ -30,6 +30,10 @@ export interface User {
   weight: number | null;
   height: number | null;
   unitPreference: UnitPreference;
+  currentStreak: number;
+  longestStreak: number;
+  lastWorkoutDate: Timestamp | null;
+  weeklyGoal: number;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }

@@ -7,6 +7,8 @@ interface PageContainerProps {
   title?: string;
   description?: string;
   action?: ReactNode;
+  /** Use gradient background instead of solid */
+  gradient?: boolean;
 }
 
 export function PageContainer({
@@ -15,27 +17,34 @@ export function PageContainer({
   title,
   description,
   action,
+  gradient = false,
 }: PageContainerProps) {
   return (
-    <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-[#020617]", className)}>
-      {(title || action) && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            {title && (
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {title}
-              </h1>
-            )}
-            {description && (
-              <p className="mt-1 text-gray-600 dark:text-gray-400">
-                {description}
-              </p>
-            )}
+    <div className={cn(
+      "min-h-screen px-5 pt-12 pb-4",
+      gradient ? "bg-gradient-page" : "",
+      className
+    )}>
+      <div className="max-w-3xl mx-auto">
+        {(title || action) && (
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              {title && (
+                <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
+                  {title}
+                </h1>
+              )}
+              {description && (
+                <p className="mt-1 text-sm text-text-secondary">
+                  {description}
+                </p>
+              )}
+            </div>
+            {action && <div className="flex-shrink-0">{action}</div>}
           </div>
-          {action && <div className="flex-shrink-0">{action}</div>}
-        </div>
-      )}
-      {children}
+        )}
+        {children}
+      </div>
     </div>
   );
 }

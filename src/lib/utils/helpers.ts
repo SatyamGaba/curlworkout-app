@@ -1,6 +1,35 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Timestamp } from "firebase/firestore";
+import type { User as FirebaseUser } from "firebase/auth";
+import type { User as AppUser } from "@/types";
+
+export interface AuthDisplayInfo {
+  displayName: string;
+  photoURL: string | null;
+  email: string;
+  avatarInitial: string;
+}
+
+/**
+ * Derives display name, photo, email, and avatar initial from Firebase Auth user
+ * and/or Firestore profile. Use Auth as fallback when profile is not yet loaded
+ * (e.g. new user right after sign-in) to avoid showing "User" / "U" briefly.
+ */
+export function getAuthDisplayInfo(
+  user: FirebaseUser | null,
+  userProfile: AppUser | null
+): AuthDisplayInfo {
+  const displayName =
+    user?.displayName ?? userProfile?.displayName ?? "User";
+  const photoURL = user?.photoURL ?? userProfile?.photoURL ?? null;
+  const email = user?.email ?? userProfile?.email ?? "";
+  const avatarInitial = (
+    user?.displayName ?? userProfile?.displayName ?? "U"
+  ).charAt(0);
+
+  return { displayName, photoURL, email, avatarInitial };
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

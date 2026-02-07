@@ -2,23 +2,38 @@ import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils/helpers";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "outlined";
+  variant?: "default" | "outlined" | "neumorphic" | "neumorphic-sm" | "stat-pill";
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", children, ...props }, ref) => {
     const variants = {
       default:
-        "bg-white dark:bg-gray-800 shadow-sm",
+        "bg-surface shadow-cal border border-border-light",
       outlined:
-        "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
+        "bg-surface border border-border",
+      neumorphic:
+        "neumorphic-card",
+      "neumorphic-sm":
+        "neumorphic-card-sm",
+      "stat-pill":
+        "stat-pill",
+    };
+
+    const radiusMap = {
+      default: "rounded-3xl",
+      outlined: "rounded-3xl",
+      neumorphic: "", // radius handled by CSS class
+      "neumorphic-sm": "", // radius handled by CSS class
+      "stat-pill": "", // radius handled by CSS class
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          "rounded-xl overflow-hidden",
+          "overflow-hidden transition-all duration-200",
+          radiusMap[variant],
           variants[variant],
           className
         )}
@@ -39,7 +54,7 @@ const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
     return (
       <div
         ref={ref}
-        className={cn("px-6 py-4 border-b border-gray-200 dark:border-gray-700", className)}
+        className={cn("px-6 py-4 border-b border-border-light", className)}
         {...props}
       >
         {children}
@@ -55,7 +70,7 @@ interface CardContentProps extends HTMLAttributes<HTMLDivElement> {}
 const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <div ref={ref} className={cn("px-6 py-4", className)} {...props}>
+      <div ref={ref} className={cn("px-6 py-5", className)} {...props}>
         {children}
       </div>
     );
@@ -72,7 +87,7 @@ const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
       <div
         ref={ref}
         className={cn(
-          "px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700",
+          "px-6 py-4 bg-surface-secondary border-t border-border-light",
           className
         )}
         {...props}

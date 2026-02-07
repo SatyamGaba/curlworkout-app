@@ -5,6 +5,7 @@ import { User as FirebaseUser } from "firebase/auth";
 import {
   onAuthChange,
   signInWithGoogle,
+  signInWithApple,
   signOut,
   getUserProfile,
 } from "@/lib/firebase/auth";
@@ -26,6 +27,8 @@ export function useAuth() {
   });
 
   useEffect(() => {
+    let retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
     const unsubscribe = onAuthChange(async (firebaseUser) => {
       if (firebaseUser) {
         try {
@@ -36,6 +39,18 @@ export function useAuth() {
             loading: false,
             error: null,
           });
+
+          if (profile === null) {
+            retryTimeoutId = setTimeout(async () => {
+              retryTimeoutId = null;
+              const retriedProfile = await getUserProfile(firebaseUser.uid);
+              setState((prev) =>
+                prev.user?.uid === firebaseUser.uid
+                  ? { ...prev, userProfile: retriedProfile }
+                  : prev
+              );
+            }, 400);
+          }
         } catch (error) {
           setState({
             user: firebaseUser,
@@ -54,13 +69,30 @@ export function useAuth() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      if (retryTimeoutId !== null) clearTimeout(retryTimeoutId);
+      unsubscribe();
+    };
   }, []);
 
-  const login = useCallback(async () => {
+  const loginWithGoogle = useCallback(async () => {
     try {
       setState((prev) => ({ ...prev, loading: true, error: null }));
       await signInWithGoogle();
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        loading: false,
+        error: error instanceof Error ? error.message : "Sign in failed",
+      }));
+      throw error;
+    }
+  }, []);
+
+  const loginWithApple = useCallback(async () => {
+    try {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      await signInWithApple();
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -97,7 +129,9 @@ export function useAuth() {
     userProfile: state.userProfile,
     loading: state.loading,
     error: state.error,
-    login,
+    login: loginWithGoogle, // Keep backward compatibility
+    loginWithGoogle,
+    loginWithApple,
     logout,
     refreshProfile,
   };
