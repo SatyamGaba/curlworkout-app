@@ -7,6 +7,7 @@ import { WorkoutBootstrap } from "@/components/providers/WorkoutBootstrap";
 import { ActiveWorkoutBanner } from "@/components/workout/ActiveWorkoutBanner";
 import "./globals.css";
 
+// Fonts directory is at project root (sibling of src); path is correct for next/font/local from src/app
 const sfPro = localFont({
   src: [
     {

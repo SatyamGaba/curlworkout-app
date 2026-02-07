@@ -3,6 +3,10 @@ import {
   getUserWorkoutHistory,
   getWorkoutHistoryById,
   getRecentWorkouts,
+  getWeeklyStats,
+  getDailyStats,
+  type WeeklyStats,
+  type DailyStats,
 } from "@/lib/firebase/firestore";
 import type { WorkoutHistory, WorkoutType } from "@/types";
 
@@ -12,9 +16,13 @@ export interface HistoryState {
   items: WorkoutHistory[];
   currentWorkout: WorkoutHistory | null;
   recentWorkouts: WorkoutHistory[];
+  weeklyStats: WeeklyStats | null;
+  dailyStats: DailyStats | null;
   loading: boolean;
   loadingCurrent: boolean;
   loadingRecent: boolean;
+  loadingWeekly: boolean;
+  loadingDaily: boolean;
   error: string | null;
 }
 
@@ -22,9 +30,13 @@ const initialState: HistoryState = {
   items: [],
   currentWorkout: null,
   recentWorkouts: [],
+  weeklyStats: null,
+  dailyStats: null,
   loading: false,
   loadingCurrent: false,
   loadingRecent: false,
+  loadingWeekly: false,
+  loadingDaily: false,
   error: null,
 };
 
@@ -75,6 +87,34 @@ export const loadRecentWorkouts = createAsyncThunk<
   }
 });
 
+export const loadWeeklyStats = createAsyncThunk<
+  WeeklyStats,
+  string,
+  { rejectValue: string }
+>("history/loadWeeklyStats", async (userId, { rejectWithValue }) => {
+  try {
+    return await getWeeklyStats(userId);
+  } catch (error) {
+    return rejectWithValue(
+      error instanceof Error ? error.message : "Failed to load weekly stats"
+    );
+  }
+});
+
+export const loadDailyStats = createAsyncThunk<
+  DailyStats,
+  { userId: string; date: Date },
+  { rejectValue: string }
+>("history/loadDailyStats", async ({ userId, date }, { rejectWithValue }) => {
+  try {
+    return await getDailyStats(userId, date);
+  } catch (error) {
+    return rejectWithValue(
+      error instanceof Error ? error.message : "Failed to load daily stats"
+    );
+  }
+});
+
 // ============ Slice ============
 
 const historySlice = createSlice({
@@ -85,6 +125,9 @@ const historySlice = createSlice({
     clearCurrentWorkout: (state) => {
       state.currentWorkout = null;
       state.loadingCurrent = false;
+    },
+    clearDailyStats: (state) => {
+      state.dailyStats = null;
     },
     // Add a workout to history (used after finishing a workout)
     addWorkoutToHistory: (state, action: PayloadAction<WorkoutHistory>) => {
@@ -136,6 +179,32 @@ const historySlice = createSlice({
       .addCase(loadRecentWorkouts.rejected, (state, action) => {
         state.loadingRecent = false;
         state.error = action.payload || "Failed to load recent workouts";
+      })
+      // loadWeeklyStats
+      .addCase(loadWeeklyStats.pending, (state) => {
+        state.loadingWeekly = true;
+        state.error = null;
+      })
+      .addCase(loadWeeklyStats.fulfilled, (state, action) => {
+        state.loadingWeekly = false;
+        state.weeklyStats = action.payload;
+      })
+      .addCase(loadWeeklyStats.rejected, (state, action) => {
+        state.loadingWeekly = false;
+        state.error = action.payload || "Failed to load weekly stats";
+      })
+      // loadDailyStats
+      .addCase(loadDailyStats.pending, (state) => {
+        state.loadingDaily = true;
+        state.error = null;
+      })
+      .addCase(loadDailyStats.fulfilled, (state, action) => {
+        state.loadingDaily = false;
+        state.dailyStats = action.payload;
+      })
+      .addCase(loadDailyStats.rejected, (state, action) => {
+        state.loadingDaily = false;
+        state.error = action.payload || "Failed to load daily stats";
       });
   },
 });
@@ -157,5 +226,13 @@ export const selectRecentWorkouts = (state: { history: HistoryState }) =>
   state.history.recentWorkouts;
 export const selectRecentWorkoutsLoading = (state: { history: HistoryState }) =>
   state.history.loadingRecent;
+export const selectWeeklyStats = (state: { history: HistoryState }) =>
+  state.history.weeklyStats;
+export const selectWeeklyStatsLoading = (state: { history: HistoryState }) =>
+  state.history.loadingWeekly;
+export const selectDailyStats = (state: { history: HistoryState }) =>
+  state.history.dailyStats;
+export const selectDailyStatsLoading = (state: { history: HistoryState }) =>
+  state.history.loadingDaily;
 export const selectHistoryError = (state: { history: HistoryState }) =>
   state.history.error;

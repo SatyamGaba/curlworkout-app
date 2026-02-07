@@ -86,6 +86,8 @@ export function useAuth() {
         error: error instanceof Error ? error.message : "Sign in failed",
       }));
       throw error;
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
     }
   }, []);
 
@@ -100,6 +102,8 @@ export function useAuth() {
         error: error instanceof Error ? error.message : "Sign in failed",
       }));
       throw error;
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
     }
   }, []);
 
@@ -114,6 +118,8 @@ export function useAuth() {
         error: error instanceof Error ? error.message : "Sign out failed",
       }));
       throw error;
+    } finally {
+      setState((prev) => ({ ...prev, loading: false }));
     }
   }, []);
 
