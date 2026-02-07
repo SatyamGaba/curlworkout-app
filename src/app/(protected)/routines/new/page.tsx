@@ -26,7 +26,7 @@ import {
   DURATION_OPTIONS,
 } from "@/types";
 
-import exercisesData from "@/../../data/exercises.json";
+import exercisesData from "data/exercises.json";
 
 export default function NewRoutinePage() {
   const router = useRouter();

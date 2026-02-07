@@ -11,8 +11,8 @@ const DURATION = {
 };
 
 const EASE = {
-  smooth: [0.25, 0.1, 0.25, 1],
-  bounce: [0.34, 1.56, 0.64, 1],
+  smooth: [0.25, 0.1, 0.25, 1] as const,
+  bounce: [0.34, 1.56, 0.64, 1] as const,
   out: [0, 0, 0.2, 1],
 };
 
@@ -266,7 +266,7 @@ export function CheckmarkAnimation({ isComplete, className = "" }: CheckmarkAnim
 // Number Counter Animation
 // ============================================
 import { useEffect, useState } from "react";
-import { useSpring, animated } from "framer-motion";
+import { useSpring } from "framer-motion";
 
 interface AnimatedNumberProps {
   value: number;

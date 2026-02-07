@@ -35,7 +35,7 @@ export function PageTransition({ children, className = "" }: PageTransitionProps
       animate="center"
       exit="exit"
       transition={{
-        x: { type: "tween", duration: 0.25, ease: [0.25, 0.1, 0.25, 1] },
+        x: { type: "tween", duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as const },
         opacity: { duration: 0.2 },
       }}
       className={className}

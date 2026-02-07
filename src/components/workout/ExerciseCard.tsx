@@ -129,7 +129,7 @@ export function ExerciseCard({
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+                transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] as const }}
                 className="overflow-hidden"
               >
                 <div className="px-4 pb-4 space-y-2">
