@@ -5,7 +5,7 @@ import { useAuthContext } from "./AuthProvider";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { workoutActions, selectWorkout } from "@/store/workoutSlice";
 import { loadRoutines } from "@/store/routinesSlice";
-import { loadRecentWorkouts } from "@/store/historySlice";
+import { loadRecentWorkouts, loadWeeklyStats } from "@/store/historySlice";
 import { loadWorkoutFromStorage, clearWorkoutFromStorage } from "@/store/persistence";
 
 /**
@@ -67,9 +67,10 @@ export function WorkoutBootstrap() {
     if (user && user.uid !== lastUserId.current) {
       lastUserId.current = user.uid;
       
-      // Preload routines and recent workouts
+      // Preload routines, recent workouts, and weekly stats
       dispatch(loadRoutines(user.uid));
       dispatch(loadRecentWorkouts({ userId: user.uid, limit: 5 }));
+      dispatch(loadWeeklyStats(user.uid));
     } else if (!user && lastUserId.current) {
       // User signed out
       lastUserId.current = null;

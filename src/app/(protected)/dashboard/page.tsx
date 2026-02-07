@@ -3,7 +3,17 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuthContext } from "@/components/providers/AuthProvider";
-import { getRecentWorkouts, getWeeklyStats, getDailyStats, type DailyStats } from "@/lib/firebase/firestore";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  loadDailyStats,
+  historyActions,
+  selectRecentWorkouts,
+  selectRecentWorkoutsLoading,
+  selectWeeklyStats,
+  selectWeeklyStatsLoading,
+  selectDailyStats,
+  selectDailyStatsLoading,
+} from "@/store/historySlice";
 import {
   CalendarWeekView,
   StreakBadge,
@@ -12,15 +22,6 @@ import {
   StatIcons,
   RecentWorkouts,
 } from "@/components/dashboard";
-import type { WorkoutHistory } from "@/types";
-
-interface WeeklyStats {
-  totalVolume: number;
-  totalSets: number;
-  totalReps: number;
-  workoutCount: number;
-  workoutDates: Date[];
-}
 
 // Helper to format date for display
 function formatDateLabel(date: Date): string {
@@ -28,90 +29,60 @@ function formatDateLabel(date: Date): string {
   today.setHours(0, 0, 0, 0);
   const compareDate = new Date(date);
   compareDate.setHours(0, 0, 0, 0);
-  
+
   if (compareDate.getTime() === today.getTime()) {
     return "today";
   }
-  
+
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
   if (compareDate.getTime() === yesterday.getTime()) {
     return "yesterday";
   }
-  
+
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+const defaultWeeklyStats = {
+  totalVolume: 0,
+  totalSets: 0,
+  totalReps: 0,
+  workoutCount: 0,
+  workoutDates: [] as Date[],
+};
+
 export default function DashboardPage() {
   const { user, userProfile } = useAuthContext();
-  const [recentWorkouts, setRecentWorkouts] = useState<WorkoutHistory[]>([]);
-  const [weeklyStats, setWeeklyStats] = useState<WeeklyStats>({
-    totalVolume: 0,
-    totalSets: 0,
-    totalReps: 0,
-    workoutCount: 0,
-    workoutDates: [],
-  });
-  const [dailyStats, setDailyStats] = useState<DailyStats | null>(null);
+  const dispatch = useAppDispatch();
+
+  const recentWorkouts = useAppSelector(selectRecentWorkouts);
+  const loadingRecent = useAppSelector(selectRecentWorkoutsLoading);
+  const weeklyStatsFromRedux = useAppSelector(selectWeeklyStats);
+  const loadingWeekly = useAppSelector(selectWeeklyStatsLoading);
+  const dailyStats = useAppSelector(selectDailyStats);
+  const loadingDaily = useAppSelector(selectDailyStatsLoading);
+
+  const weeklyStats = weeklyStatsFromRedux ?? defaultWeeklyStats;
+  const loading = loadingRecent || loadingWeekly;
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingDaily, setLoadingDaily] = useState(false);
-  
-  // Stats view mode: 0 = day/selected, 1 = week
-  const [statsViewIndex, setStatsViewIndex] = useState(1); // Start with week view
+  const [statsViewIndex, setStatsViewIndex] = useState(1);
   const statsContainerRef = useRef<HTMLDivElement>(null);
-
-  // Load initial weekly data
-  useEffect(() => {
-    async function loadData() {
-      if (!user) return;
-
-      try {
-        const [workoutsData, statsData] = await Promise.all([
-          getRecentWorkouts(user.uid, 5),
-          getWeeklyStats(user.uid),
-        ]);
-        setRecentWorkouts(workoutsData);
-        setWeeklyStats(statsData);
-      } catch (error) {
-        console.error("Error loading dashboard data:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
-  }, [user]);
 
   // Load daily stats when a date is selected
   useEffect(() => {
-    async function loadDailyStats() {
-      if (!user || !selectedDate) {
-        setDailyStats(null);
-        return;
-      }
-
-      setLoadingDaily(true);
-      try {
-        const stats = await getDailyStats(user.uid, selectedDate);
-        setDailyStats(stats);
-        // Switch to day view when a date is selected
-        setStatsViewIndex(0);
-      } catch (error) {
-        console.error("Error loading daily stats:", error);
-      } finally {
-        setLoadingDaily(false);
-      }
+    if (!user || !selectedDate) {
+      dispatch(historyActions.clearDailyStats());
+      return;
     }
-
-    loadDailyStats();
-  }, [user, selectedDate]);
+    dispatch(loadDailyStats({ userId: user.uid, date: selectedDate }));
+    setStatsViewIndex(0);
+  }, [user, selectedDate, dispatch]);
 
   // Handle date selection from calendar
   const handleSelectDate = useCallback((date: Date | null) => {
     setSelectedDate(date);
     if (date === null) {
-      // When deselecting, go back to week view
       setStatsViewIndex(1);
     }
   }, []);

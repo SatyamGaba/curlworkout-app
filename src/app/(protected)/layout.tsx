@@ -17,7 +17,7 @@ export default function ProtectedLayout({
   const { user, loading } = useAuthContext();
 
   // Check if we're on a workout page - hide navbar for focused experience
-  const isWorkoutPage = pathname?.startsWith("/workout/");
+  const isWorkoutPage = pathname.startsWith("/workout/");
 
   useEffect(() => {
     if (!loading && !user) {
