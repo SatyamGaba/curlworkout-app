@@ -79,7 +79,7 @@ export function SetRow({
           onClick={onToggleComplete}
           whileTap={{ scale: 0.9 }}
           animate={set.completed ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-          transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+          transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] as const }}
           className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200",
             set.completed

@@ -1,25 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { generateText } from "ai";
 import { openai } from "@ai-sdk/openai";
 import { google } from "@ai-sdk/google";
 import { buildRoutinePrompt } from "@/lib/ai/prompts";
 import { getAIProvider } from "@/lib/ai/provider";
-import type { Exercise, RoutineGenerationParams, GeneratedRoutine } from "@/types";
+import type { GeneratedRoutine } from "@/types";
+
+const requestSchema = z.object({
+  params: z.object({
+    userWeight: z.number().nullable(),
+    userHeight: z.number().nullable(),
+    unitPreference: z.enum(["kg", "lbs"]),
+    workoutType: z.enum(["Push", "Pull", "Legs", "Upper", "Lower", "FullBody"]),
+    intensity: z.enum(["Heavy", "Medium", "Light"]),
+    duration: z.number().positive(),
+  }),
+  exercises: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      category: z.enum(["Push", "Pull", "Legs", "Core"]),
+      muscleGroups: z.array(z.string()),
+      equipment: z.enum(["Barbell", "Dumbbell", "Cable", "Machine", "Bodyweight", "Other"]),
+    })
+  ).min(1, "At least one exercise is required"),
+});
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { params, exercises } = body as {
-      params: RoutineGenerationParams;
-      exercises: Exercise[];
-    };
+    const parseResult = requestSchema.safeParse(body);
 
-    if (!params || !exercises || exercises.length === 0) {
+    if (!parseResult.success) {
+      const message = parseResult.error.errors.map((e) => e.message).join("; ");
       return NextResponse.json(
-        { error: "Missing required parameters" },
+        { error: `Invalid request: ${message}` },
         { status: 400 }
       );
     }
+
+    const { params, exercises } = parseResult.data;
 
     const prompt = buildRoutinePrompt(params, exercises);
     const provider = getAIProvider();

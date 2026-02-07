@@ -9,6 +9,7 @@ import {
   query,
   where,
   orderBy,
+  limit,
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
@@ -168,14 +169,16 @@ export async function saveWorkoutToHistory(
 
 export async function getRecentWorkouts(
   userId: string,
-  limit: number = 5
+  limitCount: number = 5
 ): Promise<WorkoutHistory[]> {
   const historyRef = collection(db, "users", userId, "workoutHistory");
-  const q = query(historyRef, orderBy("createdAt", "desc"));
+  const q = query(
+    historyRef,
+    orderBy("createdAt", "desc"),
+    limit(limitCount)
+  );
   const snapshot = await getDocs(q);
-  return snapshot.docs
-    .slice(0, limit)
-    .map((doc) => ({ id: doc.id, ...doc.data() } as WorkoutHistory));
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as WorkoutHistory));
 }
 
 // ============ Weekly Stats ============

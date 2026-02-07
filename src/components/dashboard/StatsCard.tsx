@@ -43,7 +43,7 @@ export function StatsCard({ value, label, unit = "", progress = 0, subtitle }: S
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] as const }}
       className="neumorphic-card p-6"
     >
       <div className="flex items-center justify-between">
@@ -91,7 +91,7 @@ export function StatsCard({ value, label, unit = "", progress = 0, subtitle }: S
               animate={isInView ? { 
                 strokeDashoffset: circumference - (progress / 100) * circumference 
               } : { strokeDashoffset: circumference }}
-              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
+              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] as const, delay: 0.2 }}
             />
           </svg>
           {/* Center icon - dumbbell */}
